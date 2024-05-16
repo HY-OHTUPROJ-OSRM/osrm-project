@@ -1,4 +1,29 @@
-SQL="SELECT
+combineSQL="CREATE SEQUENCE id_seq;
+CREATE TABLE digiroad_routing AS
+SELECT nextval('id_seq') as ogc_fid
+   , CAST(
+        ST_Force2D(COALESCE(N.geom, L.geom))
+        AS GEOMETRY(LineString, 3067)
+      ) as geom
+   , link_mmlid
+   , COALESCE(N.kuntakoodi, L.kuntakoodi) AS kuntakoodi
+   , CAST(CASE WHEN N.arvo = 0 THEN null ELSE N.arvo END AS NUMERIC(5)) AS nopeus
+   , L.hallinn_lk
+   , L.toiminn_lk
+   , L.linkkityyp
+   , L.ajosuunta
+   , L.tienimi_su
+   , L.tienimi_ru
+   , L.tienimi_sa
+   , cast('digiroad' as text) as datasource
+   , L.link_tila
+FROM dr_linkki_k AS L
+LEFT OUTER JOIN dr_nopeusrajoitus_k AS N USING (segm_id);
+ 
+ALTER TABLE digiroad_routing ADD PRIMARY KEY (ogc_fid);
+CREATE INDEX digiroad_routing_geom_idx ON digiroad_routing USING GIST (geom);"
+
+convertSQL="SELECT
 ST_Transform(
   ST_ReducePrecision(
     CASE ajosuunta
@@ -38,4 +63,27 @@ nopeus AS maxspeed,
 COALESCE(tienimi_su,tienimi_ru,tienimi_sa) AS name
 FROM digiroad_routing"
 
-ogr2osm -o route-data.osm --sql "$SQL" "PG:dbname=postgres host=localhost user=postgres password=pass"
+port=5433
+
+blue="\033[0;36m"
+nc="\033[0m"
+
+dbcontid=$(docker run -d -e 'POSTGRES_HOST_AUTH_METHOD=trust' -p ${port}:5432 postgis/postgis)
+
+echo -e "${blue}Waiting for database container to start.${nc}"
+sleep 5
+
+pgstring="PG:dbname=postgres host=localhost port=$port user=postgres"
+psqlopts="-h localhost -p $port -U postgres"
+
+echo -e "${blue}Creating database.${nc}"
+ogr2ogr -f PostgreSQL "$pgstring" $1 -where "kuntakoodi=91"
+
+echo -e "${blue}Combining link and speed tables.${nc}"
+psql $psqlopts -c "$combineSQL"
+
+echo -e "${blue}Converting data.${nc}"
+ogr2osm -o route-data.osm --sql "$convertSQL" "$pgstring"
+
+echo -e "${blue}Cleaning up.${nc}"
+docker stop $dbcontid
