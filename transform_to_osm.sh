@@ -1,3 +1,4 @@
+#! /usr/bin/bash
 combineSQL="CREATE SEQUENCE id_seq;
 CREATE TABLE digiroad_routing AS
 SELECT nextval('id_seq') as ogc_fid
@@ -63,7 +64,8 @@ nopeus AS maxspeed,
 COALESCE(tienimi_su,tienimi_ru,tienimi_sa) AS name
 FROM digiroad_routing"
 
-port=5433
+port=$1
+gpkg_path=$2
 
 blue="\033[0;36m"
 nc="\033[0m"
@@ -77,7 +79,7 @@ pgstring="PG:dbname=postgres host=localhost port=$port user=postgres"
 psqlopts="-h localhost -p $port -U postgres"
 
 echo -e "${blue}Creating database.${nc}"
-ogr2ogr -f PostgreSQL "$pgstring" $1 -where "kuntakoodi=91"
+ogr2ogr -f PostgreSQL "$pgstring" $gpkg_path -where "kuntakoodi=91"
 
 echo -e "${blue}Combining link and speed tables.${nc}"
 psql $psqlopts -c "$combineSQL"
@@ -87,3 +89,4 @@ ogr2osm -o route-data.osm --sql "$convertSQL" "$pgstring"
 
 echo -e "${blue}Cleaning up.${nc}"
 docker stop $dbcontid
+
