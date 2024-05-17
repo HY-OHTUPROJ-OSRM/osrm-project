@@ -1,6 +1,8 @@
 
 ## Weekly Schedule
 
+The goal amount of work is 6 hours per day from 9:00 to 15:00 with free weekends
+
 | Day  | Time     | Meeting                   | Duration |
 |------|----------|---------------------------|----------|
 | Mon  | 9:15 AM  | Daily Scrum               | 15 min   |
