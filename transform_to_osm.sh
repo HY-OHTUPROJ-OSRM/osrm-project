@@ -85,7 +85,7 @@ echo -e "${blue}Combining link and speed tables.${nc}"
 psql $psqlopts -c "$combineSQL"
 
 echo -e "${blue}Converting data.${nc}"
-ogr2osm -o route-data.osm --sql "$convertSQL" "$pgstring"
+ogr2osm --positive-id -o route-data.osm --sql "$convertSQL" "$pgstring"
 
 echo -e "${blue}Cleaning up.${nc}"
 docker stop $dbcontid
