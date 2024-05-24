@@ -1,0 +1,55 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: osrm-frontend
+      labels:
+        app: osrm-frontend
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: osrm-frontend
+      template:
+        metadata:
+          labels:
+            app: osrm-frontend
+        spec:
+          containers:
+          - name: osrm-frontend
+            image: quay.io/osrm-projekti/frontend:latest
+            ports:
+              - containerPort: 9966
+            env:
+              - name: OSRM_BACKEND
+                value: 'https://routing-api-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi'
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: osrm-frontend
+    spec:
+      selector:
+        app: osrm-frontend
+      ports:
+        - name: 9966-tcp
+          protocol: TCP
+          port: 9966
+          targetPort: 9966
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: osrm-frontend
+    spec:
+      host: osrm-frontend-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi
+      port:
+        targetPort: 9966-tcp
+      to:
+        kind: Service
+        name: osrm-frontend
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
