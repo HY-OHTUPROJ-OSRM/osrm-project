@@ -201,3 +201,58 @@ objects:
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
+  # map-database
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: map-database-password
+    type: Opaque
+    stringData:
+      password: ${POSTGRES_PASSWORD}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: map-database
+      labels:
+        app: map-database
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: map-database
+        app.kubernetes.io/name: map-database
+        app.kubernetes.io/part-of: osrm-project
+        app.openshift.io/runtime: postgresql
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: map-database
+      template:
+        metadata:
+          labels:
+            app: map-database
+        spec:
+          volumes:
+            - name: map-data
+              persistentVolumeClaim:
+                claimName: osrm-data
+          containers:
+          - name: map-database
+            image: postgis/postgis
+            ports:
+              - containerPort: 5432
+            volumeMounts:
+              - name: map-data
+                mountPath: /var/lib/postgresql/data
+            env:
+              - name: POSTGRES_DB
+                value: postgres
+              - name: POSTGRES_USER
+                value: postgres
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: map-database-password
+                    key: password
+              - name: PGDATA
+                value: /var/lib/postgresql/data/pgdata
+parameters:
+- name: POSTGRES_PASSWORD
