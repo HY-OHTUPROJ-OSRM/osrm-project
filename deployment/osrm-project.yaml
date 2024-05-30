@@ -40,7 +40,7 @@ objects:
       annotations:
         app.openshift.io/connects-to: routing-api
         app.openshift.io/vcs-uri: https://github.com/Project-OSRM/osrm-frontend
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"osrm-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"container\")].image"}]'
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"osrm-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"osrm-frontend\")].image"}]'
     spec:
       replicas: 1
       selector:
@@ -140,8 +140,9 @@ objects:
         app.kubernetes.io/part-of: osrm-project
         app.openshift.io/runtime: nodejs
       annotations:
+        app.openshift.io/connects-to: map-database
         app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-api:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"container\")].image"}]'
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-api:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-api\")].image"}]'
     spec:
       replicas: 1
       selector:
@@ -157,6 +158,20 @@ objects:
             image: routing-api:latest
             ports:
               - containerPort: 3000
+            env:
+              - name: DATABASE_HOST
+                value: map-database.ohtuprojekti-staging.svc.cluster.local
+              - name: DATABASE_PORT
+                value: "5432"
+              - name: DATABASE_DB
+                value: postgres
+              - name: DATABASE_USER
+                value: postgres
+              - name: DATABASE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: map-database-password
+                    key: password
   - apiVersion: v1
     kind: Service
     metadata:
@@ -169,6 +184,7 @@ objects:
         app.kubernetes.io/part-of: osrm-project
         app.openshift.io/runtime-version: latest
       annotations:
+        app.openshift.io/connects-to: map-database
         app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
     spec:
       selector:
@@ -254,5 +270,23 @@ objects:
                     key: password
               - name: PGDATA
                 value: /var/lib/postgresql/data/pgdata
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: map-database
+      labels:
+        app: map-database
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: map-database
+        app.kubernetes.io/name: map-database
+        app.kubernetes.io/part-of: osrm-project
+    spec:
+      selector:
+        app: map-database
+      ports:
+        - name: 5432-tcp
+          protocol: TCP
+          port: 5432
+          targetPort: 5432
 parameters:
 - name: POSTGRES_PASSWORD
