@@ -3,16 +3,16 @@ kind: Template
 metadata:
   name: osrm-project
 objects:
-  # osrm-frontend
+  # routing-front
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     metadata:
-      name: osrm-frontend
+      name: routing-front
       labels:
-        app: osrm-frontend
+        app: routing-front
         app.kubernetes.io/component: frontend
-        app.kubernetes.io/instance: osrm-frontend
-        app.kubernetes.io/name: osrm-frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
         app.kubernetes.io/part-of: osrm-project
     spec:
       lookupPolicy:
@@ -21,7 +21,7 @@ objects:
         - name: latest
           from:
             kind: DockerImage
-            name: quay.io/osrm-projekti/frontend
+            name: quay.io/osrm-projekti/routing-front
           importPolicy:
             importMode: Legacy
           referencePolicy:
@@ -29,79 +29,76 @@ objects:
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
-      name: osrm-frontend
+      name: routing-front
       labels:
-        app: osrm-frontend
+        app: routing-front
         app.kubernetes.io/component: frontend
-        app.kubernetes.io/instance: osrm-frontend
-        app.kubernetes.io/name: osrm-frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
         app.kubernetes.io/part-of: osrm-project
         app.openshift.io/runtime: nodejs
       annotations:
         app.openshift.io/connects-to: routing-api
-        app.openshift.io/vcs-uri: https://github.com/Project-OSRM/osrm-frontend
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"osrm-frontend:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"osrm-frontend\")].image"}]'
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-front:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-front\")].image"}]'
     spec:
       replicas: 1
       selector:
         matchLabels:
-          app: osrm-frontend
+          app: routing-front
       template:
         metadata:
           labels:
-            app: osrm-frontend
+            app: routing-front
         spec:
           containers:
-          - name: osrm-frontend
-            image: osrm-frontend:latest
+          - name: routing-front
+            image: routing-front:latest
             ports:
-              - containerPort: 9966
-            env:
-              - name: OSRM_BACKEND
-                value: 'https://routing-api-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi'
+              - containerPort: 8080
   - apiVersion: v1
     kind: Service
     metadata:
-      name: osrm-frontend
+      name: routing-front
       labels:
-        app: osrm-frontend
+        app: routing-front
         app.kubernetes.io/component: frontend
-        app.kubernetes.io/instance: osrm-frontend
-        app.kubernetes.io/name: osrm-frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
         app.kubernetes.io/part-of: osrm-project
         app.kubernetes.io/runtime-version: latest
       annotations:
         app.openshift.io/connects-to: routing-api
-        app.openshift.io/vcs-uri: https://github.com/Project-OSRM/osrm-frontend
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
     spec:
       selector:
-        app: osrm-frontend
+        app: routing-front
       ports:
-        - name: 9966-tcp
+        - name: 8080-tcp
           protocol: TCP
-          port: 9966
-          targetPort: 9966
+          port: 8080
+          targetPort: 8080
   - apiVersion: route.openshift.io/v1
     kind: Route
     metadata:
-      name: osrm-frontend
+      name: routing-front
       labels:
-        app: osrm-frontend
+        app: routing-front
         app.kubernetes.io/component: frontend
-        app.kubernetes.io/instance: osrm-frontend
-        app.kubernetes.io/name: osrm-frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
         app.kubernetes.io/part-of: osrm-project
         app.kubernetes.io/runtime-version: latest
       annotations:
         app.openshift.io/connects-to: routing-api
-        app.openshift.io/vcs-uri: https://github.com/Project-OSRM/osrm-frontend
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
     spec:
-      host: osrm-frontend-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi
+      host: routing-front-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi
       port:
-        targetPort: 9966-tcp
+        targetPort: 8080-tcp
       to:
         kind: Service
-        name: osrm-frontend
+        name: routing-front
       tls:
         termination: edge
         insecureEdgeTerminationPolicy: Redirect
