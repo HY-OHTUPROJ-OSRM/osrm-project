@@ -169,6 +169,8 @@ objects:
                   secretKeyRef:
                     name: map-database-password
                     key: password
+              - name: ROUTE_DATA_PATH
+                value: ./route-data.osm
   - apiVersion: v1
     kind: Service
     metadata:
