@@ -206,6 +206,7 @@ objects:
         app.openshift.io/runtime-version: latest
       annotations:
         app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
+        haproxy.router.openshift.io/timeout: 24h
     spec:
       host: routing-api-ohtuprojekti-staging.apps.ocp-test-0.k8s.it.helsinki.fi
       port:
