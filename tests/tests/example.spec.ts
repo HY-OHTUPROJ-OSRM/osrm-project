@@ -1,8 +1,6 @@
-// tests/example.spec.ts
 import { test, expect } from '@playwright/test';
 
-test('homepage has title', async ({ page }) => {
-  await page.goto('https://example.com');
-  await expect(page).toHaveTitle(/Example Domain/);
+test('website load works', async ({ page }) => {
+  await page.goto('http://localhost.com:8080', { waitUntil: 'networkidle' });
+  await expect(page.locator('body')).toBeVisible();
 });
-

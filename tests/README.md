@@ -6,3 +6,6 @@ npm install
 ```
 npx playwright test
 ```
+```
+docker compose up -d
+```
