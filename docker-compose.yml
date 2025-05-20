@@ -15,14 +15,14 @@ services:
 
   osrm-backend:
     build:
-      context: git@github.com:Project-OSRM/osrm-backend#f5e92418991f86c3a18bbc85df71868a1d378e01 # hardcoded lol
+      context: https://github.com/Project-OSRM/osrm-backend.git#f5e92418991f86c3a18bbc85df71868a1d378e01 # hardcoded lol
       dockerfile: docker/Dockerfile-debian
       tags:
         - osrm-backend:v6.0.0-debian
 
   routing-api:
     build:
-      context: git@github.com:HY-OHTUPROJ-OSRM/routing-api.git
+      context: https://github.com/HY-OHTUPROJ-OSRM/routing-api.git
       additional_contexts:
         base: service:osrm-backend
       network: host
@@ -44,7 +44,7 @@ services:
     
   routing-front:
     build: 
-      context: git@github.com:HY-OHTUPROJ-OSRM/routing-front.git
+      context: https://github.com/HY-OHTUPROJ-OSRM/routing-front.git
       args:
         ROUTING_API_URL: http://localhost:3000
       tags:
