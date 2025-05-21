@@ -1,3 +1,8 @@
+networks:
+  default:
+    driver: bridge
+    enable_ipv6: true
+
 volumes: 
   osrm_db:
 
@@ -10,7 +15,7 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: postgres
     ports:
-      - 5434:5432
+      - 5432:5432
     volumes:
       - osrm_db:/var/lib/postgresql/data
 
@@ -23,29 +28,27 @@ services:
 
   routing-api:
     build:
-      context: https://github.com/HY-OHTUPROJ-OSRM/routing-api.git
+      context: https://github.com/HY-OHTUPROJ-OSRM/routing-api.git#dev
       additional_contexts:
         base: service:osrm-backend
-      network: host
       tags:
         - routing-api
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
-      - BACKEND_URL=http://host.docker.internal:5001
+      - BACKEND_URL=http://0.0.0.0:5001
       - OSRM_BACKEND_PORT=5001
-      - DATABASE_HOST=host.docker.internal
-      - DATABASE_PORT=5434
+      - DATABASE_HOST=osrm-db
+      - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=pass
     ports:
       - 3000:3000
-      - 5001:5001
+    depends_on:
+      - osrm-db
     
   routing-front:
     build: 
-      context: https://github.com/HY-OHTUPROJ-OSRM/routing-front.git
+      context: https://github.com/HY-OHTUPROJ-OSRM/routing-front.git#dev
       args:
         ROUTING_API_URL: http://localhost:3000
       tags:
