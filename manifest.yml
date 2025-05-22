@@ -1,0 +1,113 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: routing-api
+    spec:
+      replicas: 1
+      selector:
+        app: routing-api
+      template:
+        metadata:
+          labels:
+            app: routing-api
+        spec:
+          containers:
+            - name: osrm-db
+              image: postgis/postgis:17-3.5
+              env:
+                - name: POSTGRES_USER
+                  value: postgres
+                - name: POSTGRES_PASSWORD
+                  value: pass
+                - name: POSTGRES_DB
+                  value: postgres
+              ports:
+                - containerPort: 5432
+              volumeMounts:
+                - name: osrm-db-storage
+                  mountPath: /var/lib/postgresql/data
+            - name: routing-api
+              image: routing-api
+              env:
+                - name: BACKEND_URL
+                  value: http://localhost:5000
+                - name: OSRM_BACKEND_PORT
+                  value: "5000"
+                - name: DATABASE_HOST
+                  value: osrm-db
+                - name: DATABASE_PORT
+                  value: "5432"
+                - name: DATABASE_NAME
+                  value: postgres
+                - name: DATABASE_USER
+                  value: postgres
+                - name: DATABASE_PASSWORD
+                  value: pass
+              ports:
+                - containerPort: 3000
+              resources:
+                limits:
+                  cpu: "500m"
+                  memory: "1024Mi"
+                requests:
+                  cpu: "250m"
+                  memory: "256Mi"
+          volumes:
+            - name: osrm-db-storage
+              emptyDir: {}
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: routing-api
+    spec:
+      selector:
+        app: routing-api
+      ports:
+        - protocol: TCP
+          port: 3000
+          targetPort: 3000
+
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: routing-front
+    spec:
+      replicas: 1
+      selector:
+        app: routing-front
+      template:
+        metadata:
+          labels:
+            app: routing-front
+        spec:
+          containers:
+            - name: routing-front
+              image: routing-front
+              env:
+                - name: ROUTING_API_URL
+                  value: http://routing-api:3000
+              ports:
+                - containerPort: 8080
+              resources:
+                limits:
+                  cpu: "500m"
+                  memory: "1024Mi"
+                requests:
+                  cpu: "250m"
+                  memory: "256Mi"
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: routing-front
+    spec:
+      selector:
+        app: routing-front
+      ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
