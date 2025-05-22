@@ -29,8 +29,8 @@ services:
       tags:
         - routing-api
     environment:
-      - BACKEND_URL=http://0.0.0.0:5001
-      - OSRM_BACKEND_PORT=5001
+      - BACKEND_URL=http://localhost:5000
+      - OSRM_BACKEND_PORT=5000
       - DATABASE_HOST=osrm-db
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
