@@ -1,0 +1,33 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: routing-front-bc
+      labels:
+        app: routing-front
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
+        app.kubernetes.io/part-of: osrm-project
+    spec:
+      source:
+        type: Git
+        git:
+          uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
+          ref: dev
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile
+      output:
+        to:
+          kind: ImageStreamTag
+          name: routing-front:latest
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+      resources: {}

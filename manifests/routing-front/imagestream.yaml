@@ -1,0 +1,27 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: routing-front-is
+      labels:
+        app: routing-front
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
+        app.kubernetes.io/part-of: osrm-project
+    spec:
+      lookupPolicy:
+        local: true
+      tags:
+        - name: latest
+          from:
+            kind: DockerImage
+            name: quay.io/osrm-projekti/routing-front
+          importPolicy:
+            importMode: Legacy
+          referencePolicy:
+            type: Local

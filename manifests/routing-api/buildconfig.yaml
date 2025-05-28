@@ -1,0 +1,36 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    metadata:
+      name: routing-api-bc
+      labels:
+        app: routing-api
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: routing-api
+        app.kubernetes.io/name: routing-api
+        app.kubernetes.io/part-of: osrm-project
+    spec:
+      source:
+        type: Git
+        git:
+          uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
+          ref: dev
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile
+        from:
+          kind: ImageStreamTag
+          name: osrm-backend:v6.0.0-debian
+      output:
+        to:
+          kind: ImageStreamTag
+          name: routing-api:latest
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+      resources: {}

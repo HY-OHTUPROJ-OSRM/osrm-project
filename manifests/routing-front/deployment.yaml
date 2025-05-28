@@ -1,0 +1,35 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: routing-front-dep
+      labels:
+        app: routing-front
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
+        app.kubernetes.io/part-of: osrm-project
+        app.openshift.io/runtime: nodejs
+      annotations:
+        app.openshift.io/connects-to: routing-api
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-front:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-front\")].image"}]'
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: routing-front
+      template:
+        metadata:
+          labels:
+            app: routing-front
+        spec:
+          containers:
+          - name: routing-front
+            image: routing-front:latest
+            ports:
+              - containerPort: 8080

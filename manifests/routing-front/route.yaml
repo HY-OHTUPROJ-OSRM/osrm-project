@@ -1,0 +1,29 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: routing-front-route
+      labels:
+        app: routing-front
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/instance: routing-front
+        app.kubernetes.io/name: routing-front
+        app.kubernetes.io/part-of: osrm-project
+        app.kubernetes.io/runtime-version: latest
+      annotations:
+        app.openshift.io/connects-to: routing-api
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
+    spec:
+      host: routing-front-ohtuprojekti-staging.apps.ocp-prod-0.k8s.it.helsinki.fi
+      port:
+        targetPort: 8080-tcp
+      to:
+        kind: Service
+        name: routing-front-svc
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect

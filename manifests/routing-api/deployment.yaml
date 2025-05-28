@@ -1,0 +1,61 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: routing-api-dep
+      labels:
+        app: routing-api
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: routing-api
+        app.kubernetes.io/name: routing-api
+        app.kubernetes.io/part-of: osrm-project
+        app.openshift.io/runtime: nodejs
+      annotations:
+        app.openshift.io/connects-to: map-database
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-api:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-api\")].image"}]'
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: routing-api
+      template:
+        metadata:
+          labels:
+            app: routing-api
+        spec:
+          containers:
+          - name: routing-api
+            image: routing-api:latest
+            ports:
+              - containerPort: 3000
+            env:
+              - name: DATABASE_HOST
+                valueFrom:
+                configMapKeyRef:
+                  name: routing-api-config
+                  key: DB_URL 
+              - name: DATABASE_PORT
+                valueFrom:
+                configMapKeyRef:
+                  name: routing-api-config
+                  key: DB_PORT
+              - name: DATABASE_DB
+                valueFrom:
+                configMapKeyRef:
+                  name: routing-api-config
+                  key: DB_NAME
+              - name: DATABASE_USER
+                valueFrom:
+                configMapKeyRef:
+                  name: routing-api-config
+                  key: DB_USER
+              - name: DATABASE_PASSWORD
+                valueFrom:
+                configMapKeyRef:
+                  name: routing-api-config
+                  key: DB_PASSWORD

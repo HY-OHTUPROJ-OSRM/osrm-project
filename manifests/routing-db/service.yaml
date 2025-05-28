@@ -1,0 +1,23 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: routing-db-svc
+      labels:
+        app: routing-db
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: routing-db
+        app.kubernetes.io/name: routing-db
+        app.kubernetes.io/part-of: osrm-project
+    spec:
+      selector:
+        app: routing-db
+      ports:
+        - name: 5432-tcp
+          protocol: TCP
+          port: 5432
+          targetPort: 5432

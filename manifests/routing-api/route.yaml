@@ -1,0 +1,29 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: routing-api-route
+      labels:
+        app: routing-api
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: routing-api
+        app.kubernetes.io/name: routing-api
+        app.kubernetes.io/part-of: osrm-project
+        app.openshift.io/runtime-version: latest
+      annotations:
+        app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
+        haproxy.router.openshift.io/timeout: 24h
+    spec:
+      host: routing-api-ohtuprojekti-staging.apps.ocp-prod-0.k8s.it.helsinki.fi
+      port:
+        targetPort: 3000-tcp
+      to:
+        kind: Service
+        name: routing-api-svc
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect

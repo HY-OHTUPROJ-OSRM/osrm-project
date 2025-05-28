@@ -1,0 +1,50 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: routing-db-dep
+      labels:
+        app: routing-db
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: routing-db
+        app.kubernetes.io/name: routing-db
+        app.kubernetes.io/part-of: osrm-project
+        app.openshift.io/runtime: postgresql
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: routing-db
+      template:
+        metadata:
+          labels:
+            app: routing-db
+        spec:
+          volumes:
+            - name: routing-data
+              persistentVolumeClaim:
+                claimName: osrm_data
+          containers:
+          - name: routing-db
+            image: postgis/postgis
+            ports:
+              - containerPort: 5432
+            volumeMounts:
+              - name: routing-data
+                mountPath: /var/lib/postgresql/data
+            env:
+              - name: POSTGRES_DB
+                value: postgres
+              - name: POSTGRES_USER
+                value: postgres
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: routing-db-secret
+                    key: password
+              - name: PGDATA
+                value: /var/lib/postgresql/data/pgdata

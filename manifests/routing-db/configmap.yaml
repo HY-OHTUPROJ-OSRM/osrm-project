@@ -1,0 +1,21 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: osrm-project
+objects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: routing-db-config
+      labels:
+        app: routing-db
+        app.kubernetes.io/component: database
+        app.kubernetes.io/instance: routing-db
+        app.kubernetes.io/name: routing-db
+        app.kubernetes.io/part-of: osrm-project
+    data:
+      DB_HOST: possu-test.it.helsinki.fi
+      DB_PORT: "5432"
+      DB_NAME: osrm_db
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
