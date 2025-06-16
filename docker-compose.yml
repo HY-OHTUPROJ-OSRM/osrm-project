@@ -24,6 +24,8 @@ services:
   routing-api:
     build:
       context: https://github.com/HY-OHTUPROJ-OSRM/routing-api.git
+      args:
+        BASE_IMAGE: quay.io/routing-projekti/osrm-backend:v6.0.0-debian
       additional_contexts:
         base: service:osrm-backend
       tags:
