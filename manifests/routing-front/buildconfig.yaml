@@ -18,15 +18,25 @@ objects:
         type: Git
         git:
           uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
-          ref: dev
+          ref: master
       strategy:
         type: Docker
         dockerStrategy:
           dockerfilePath: Dockerfile
+          buildArgs:
+            - name: ROUTING_API_URL
+              value: "https://routing-api-ohtuprojekti-staging.apps.ocp-prod-0.k8s.it.helsinki.fi/"
+      resources:
+        limits:
+          memory: "8Gi"
+          cpu: "500m"
+        requests:
+          memory: "2Gi"
+          cpu: "500m"
       output:
         to:
           kind: ImageStreamTag
-          name: routing-front:latest
+          name: routing-front-is:latest
       triggers:
         - type: ConfigChange
         - type: ImageChange

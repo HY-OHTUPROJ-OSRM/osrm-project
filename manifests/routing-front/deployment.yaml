@@ -17,7 +17,7 @@ objects:
       annotations:
         app.openshift.io/connects-to: routing-api
         app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-front
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-front:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-front\")].image"}]'
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-front-is:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-front\")].image"}]'
     spec:
       replicas: 1
       selector:
@@ -30,6 +30,6 @@ objects:
         spec:
           containers:
           - name: routing-front
-            image: routing-front:latest
+            image: routing-front-is:latest
             ports:
               - containerPort: 8080

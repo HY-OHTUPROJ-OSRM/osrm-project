@@ -17,7 +17,7 @@ objects:
       annotations:
         app.openshift.io/connects-to: map-database
         app.openshift.io/vcs-uri: https://github.com/HY-OHTUPROJ-OSRM/routing-api
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-api:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-api\")].image"}]'
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"routing-api-is:latest"},"fieldPath":"spec.template.spec.containers[?(@.name==\"routing-api\")].image"}]'
     spec:
       replicas: 1
       selector:
@@ -30,32 +30,31 @@ objects:
         spec:
           containers:
           - name: routing-api
-            image: routing-api:latest
+            image: routing-api-is:latest
             ports:
               - containerPort: 3000
             env:
+              - name: BACKEND_URL
+                value: http://0.0.0.0:5000
               - name: DATABASE_HOST
-                valueFrom:
-                configMapKeyRef:
-                  name: routing-api-config
-                  key: DB_URL 
+                value: possu.it.helsinki.fi
               - name: DATABASE_PORT
-                valueFrom:
-                configMapKeyRef:
-                  name: routing-api-config
-                  key: DB_PORT
+                value: "5432"
               - name: DATABASE_DB
-                valueFrom:
-                configMapKeyRef:
-                  name: routing-api-config
-                  key: DB_NAME
+                value: osrm_data
               - name: DATABASE_USER
-                valueFrom:
-                configMapKeyRef:
-                  name: routing-api-config
-                  key: DB_USER
+                value: osrm_data
+              - name: FORCE_SSL
+                value: "true"
               - name: DATABASE_PASSWORD
                 valueFrom:
-                configMapKeyRef:
-                  name: routing-api-config
-                  key: DB_PASSWORD
+                  secretKeyRef:
+                    name: routing-db-secret
+                    key: password
+            resources:
+              limits:
+                memory: "3072Mi"
+                cpu: "750m"
+              requests:
+                memory: "1024Mi"
+                cpu: "250m"

@@ -20,7 +20,8 @@ objects:
         - name: latest
           from:
             kind: DockerImage
-            name: quay.io/osrm-projekti/routing-front
+            name: quay.io/routing-projekti/routing-front
+            # name: ohtuprojekti-staging/routing-front:latest
           importPolicy:
             importMode: Legacy
           referencePolicy:

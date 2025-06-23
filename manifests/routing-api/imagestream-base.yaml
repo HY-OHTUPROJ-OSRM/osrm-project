@@ -6,7 +6,7 @@ objects:
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     metadata:
-      name: routing-api-is
+      name: osrm-backend-is
       labels:
         app: routing-api
         app.kubernetes.io/component: backend
@@ -20,8 +20,7 @@ objects:
         - name: latest
           from:
             kind: DockerImage
-            name: quay.io/routing-projekti/routing-api
-            # name: ohtuprojekti-staging/routing-api:latest
+            name: ohtuprojekti-staging/osrm-backend:latest
           importPolicy:
             importMode: Legacy
           referencePolicy:
